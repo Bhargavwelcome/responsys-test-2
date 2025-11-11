@@ -15,33 +15,48 @@
   <h1>Responsys Web Push Demo</h1>
   <p class="visitor" id="visitorIdDisplay">Visitor ID will appear here after registration.</p>
 
-  <!--  Load Responsys Web Push SDK first -->
-  <script type='text/javascript' id='rsyswpsdk' src='https://api.pushio.com/webpush/sdk/wpIndex_min.js' wpconfig = '{"appserviceKey":"BBfCgd8DzPawmPJgGJy8decXP1TJvDczsIpA0wqk961Xjb3auyJ9qMC2JwPT6XiRK429JsCDtWRgyLoaujPeGmE=","apiKey":"ABEWBYcAAX3LV04gEHMQJ2xIs","accountToken":"ABElKaqpK-3l_zDeOp-XArlkg","appver":"0.0.0","apiHost":"https://abr16c0-webpush.oraclersys.com","lazy":false}'></script>
+  <!--  Load Responsys Web Push SDK -->
+  <script
+    type="text/javascript"
+    id="rsyswpsdk"
+    src="https://api.pushio.com/webpush/sdk/wpIndex_min.js"
+    wpconfig='{
+      "appserviceKey": "BBfCgd8DzPawmPJgGJy8decXP1TJvDczsIpA0wqk961Xjb3auyJ9qMC2JwPT6XiRK429JsCDtWRgyLoaujPeGmE=",
+      "apiKey": "ABEWBYcAAX3LV04gEHMQJ2xIs",
+      "accountToken": "ABElKaqpK-3l_zDeOp-XArlkg",
+      "apiHost": "https://abr16c0-webpush.oraclersys.com",
+      "appver": "1.0.0",
+      "lazy": false
+    }'>
+  </script>
 
-  <!--  Wait for SDK, then register Service Worker and Web Push -->
   <script>
-    const waitSDK = setInterval(() => {
-      if (typeof orawp !== "undefined") {
-        clearInterval(waitSDK);
-
-        // Register Service Worker (adjust path to match your GitHub repo)
-        if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register('responsys-test-2/service-worker.js')
-            .then(reg => console.log(' Service Worker registered:', reg))
-            .catch(err => console.error(' Service Worker registration failed:', err));
-        }
-
-        // Register visitor for Web Push
-        orawp.registerForWebPush()
-          .then(() => {
-            const visitorId = orawp.getVisitorId();
-            console.log('Visitor ID:', visitorId);
-            document.getElementById("visitorIdDisplay").textContent = `Visitor ID: ${visitorId}`;
-          })
-          .catch(err => console.error('Web Push registration failed:', err));
-
+    document.addEventListener("DOMContentLoaded", function () {
+      // 1️⃣ Register Service Worker (relative path!)
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('responsys-test-2/service-worker.js')
+          .then(reg => console.log('✅ Service Worker registered:', reg))
+          .catch(err => console.error('❌ Service Worker registration failed:', err));
+      } else {
+        console.warn('⚠️ Service Workers not supported in this browser.');
       }
-    }, 500);
+
+      // 2️⃣ Wait for Responsys SDK to load
+      const checkSDK = setInterval(() => {
+        if (typeof orawp !== "undefined") {
+          clearInterval(checkSDK);
+
+          // 3️⃣ Register visitor for Web Push
+          orawp.registerForWebPush()
+            .then(() => {
+              const visitorId = orawp.getVisitorId();
+              console.log('✅ Visitor ID:', visitorId);
+              document.getElementById("visitorIdDisplay").textContent = `Visitor ID: ${visitorId}`;
+            })
+            .catch(err => console.error('❌ Web Push registration failed:', err));
+        }
+      }, 500);
+    });
   </script>
 
 </body>
