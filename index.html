@@ -26,7 +26,7 @@
 
         // Register Service Worker (adjust path to match your GitHub repo)
         if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register('/responsys-test-2/service-worker.js')
+          navigator.serviceWorker.register('responsys-test-2/service-worker.js')
             .then(reg => console.log(' Service Worker registered:', reg))
             .catch(err => console.error(' Service Worker registration failed:', err));
         }
