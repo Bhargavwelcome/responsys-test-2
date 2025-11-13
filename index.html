@@ -8,14 +8,20 @@
     body { font-family: Arial, sans-serif; background-color: #f8fafc; color: #333; text-align: center; padding: 40px; }
     h1 { color: #0078d7; }
     .visitor { margin-top: 20px; font-size: 1.2em; }
+    input, button { padding: 8px; margin: 10px; font-size: 1em; }
   </style>
 </head>
 <body>
 
   <h1>Responsys Web Push Demo</h1>
+
+  <!-- 👇 Add this input for your Customer ID -->
+  <input type="text" id="customerId" placeholder="Enter Customer ID" />
+  <button id="registerBtn">Register</button>
+
   <p class="visitor" id="visitorIdDisplay">Visitor ID will appear here after registration.</p>
 
-  <!--  Load Responsys Web Push SDK -->
+  <!-- Responsys Web Push SDK -->
   <script
     type="text/javascript"
     id="rsyswpsdk"
@@ -32,30 +38,49 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-      // 1️⃣ Register Service Worker (relative path!)
+
+      // ✅ Register Service Worker
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('service-worker.js')
           .then(reg => console.log('✅ Service Worker registered:', reg))
           .catch(err => console.error('❌ Service Worker registration failed:', err));
-      } else {
-        console.warn('⚠️ Service Workers not supported in this browser.');
       }
 
-      // 2️⃣ Wait for Responsys SDK to load
-      const checkSDK = setInterval(() => {
-        if (typeof orawp !== "undefined") {
-          clearInterval(checkSDK);
+      // ✅ Handle Register button click
+      document.getElementById("registerBtn").addEventListener("click", function() {
+        const customerId = document.getElementById("customerId").value.trim();
 
-          // 3️⃣ Register visitor for Web Push
-          orawp.registerForWebPush()
-            .then(() => {
-              const visitorId = orawp.getVisitorId();
-              console.log('✅ Visitor ID:', visitorId);
-              document.getElementById("visitorIdDisplay").textContent = `Visitor ID: ${visitorId}`;
-            })
-            .catch(err => console.error('❌ Web Push registration failed:', err));
+        if (!customerId) {
+          alert("Please enter your Customer ID first!");
+          return;
         }
-      }, 500);
+
+        const checkSDK = setInterval(() => {
+          if (typeof orawp !== "undefined") {
+            clearInterval(checkSDK);
+
+            // Register for Web Push
+            orawp.registerForWebPush()
+              .then(() => {
+                const visitorId = orawp.getVisitorId();
+                console.log("✅ Visitor ID:", visitorId);
+                console.log("🧑 Customer ID:", customerId);
+
+                document.getElementById("visitorIdDisplay").textContent =
+                  `Customer ID: ${customerId} | Visitor ID: ${visitorId}`;
+
+                // 👉 (optional) send to your DB
+                // fetch("https://your-server/save", {
+                //   method: "POST",
+                //   headers: { "Content-Type": "application/json" },
+                //   body: JSON.stringify({ customerId, visitorId })
+                // });
+
+              })
+              .catch(err => console.error("❌ Web Push registration failed:", err));
+          }
+        }, 500);
+      });
     });
   </script>
 
